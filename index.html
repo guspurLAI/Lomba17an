@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Pendaftaran Turnamen HUT RI ke-81 LAI</title>
+    <title>Portal Turnamen HUT RI ke-81 LAI</title>
 
     <!-- Bootstrap CSS & FontAwesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -12,164 +12,424 @@
     <style>
         body { background: #f4f6f9; }
         .navbar { background: #b71c1c; }
-        .navbar-brand { color: white; font-weight: bold; }
-        .header-datetime { color: #ffebee; font-size: 0.9rem; font-weight: 500; }
+        .navbar-brand { color: white; font-weight: bold; display: flex; align-items: center; gap: 12px; }
+        
+        /* Styling Logo HUT RI 81 */
+        .logo-hut { 
+            height: 42px; 
+            width: auto; 
+            object-fit: contain; 
+            background-color: #ffffff;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+        
+        .header-datetime { color: #ffebee; font-size: 0.85rem; font-weight: 500; }
+        
+        /* Running Text / Announcement Bar */
+        .running-text-bar {
+            background-color: #b71c1c;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 6px 0;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        /* Navbar Navigation Styling */
+        .nav-portal .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        .nav-portal .nav-link:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .nav-portal .nav-link.active {
+            color: #b71c1c !important;
+            background: #ffffff !important;
+            font-weight: bold;
+        }
+
+        /* Responsive Dashboard Cards */
         .card-dashboard { border: none; border-radius: 15px; color: white; box-shadow: 0 5px 15px rgba(0,0,0,.15); transition: .3s; }
         .card-dashboard:hover { transform: translateY(-5px); }
         .card1 { background: #d32f2f; }
         .card2 { background: #1976d2; }
         .card3 { background: #2e7d32; }
         .card4 { background: #ff9800; }
-        .card-dashboard h2 { font-size: 35px; font-weight: bold; }
-        .form-card, .table-card { border: none; border-radius: 15px; }
+        .card-dashboard h2 { font-size: 2rem; font-weight: bold; }
+        .form-card, .table-card, .bracket-card { border: none; border-radius: 15px; }
         footer { background: #b71c1c; color: white; padding: 15px; margin-top: 40px; }
+
+        /* =========================================================
+           STYLING BAGAN TURNAMEN RESPONSIVE & PROPORSIONAL
+           ========================================================= */
+        .bracket-container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: stretch;
+            gap: 24px;
+            overflow-x: auto;
+            padding: 15px 10px;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+        }
+
+        .bracket-round {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            flex: 1 1 240px;
+            min-width: 220px;
+            max-width: 320px;
+            position: relative;
+        }
+
+        .bracket-round-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            color: #b71c1c;
+            border-bottom: 2px solid #b71c1c;
+            padding-bottom: 4px;
+        }
+
+        .matchup {
+            background: #ffffff;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            margin: 8px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+            padding: 8px 10px;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .matchup:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+        }
+
+        /* Garis Keluar ke Kanan */
+        .bracket-round:not(:last-child) .matchup::after {
+            content: "";
+            position: absolute;
+            right: -12px;
+            top: 50%;
+            width: 12px;
+            height: 2px;
+            background-color: #0d6efd;
+        }
+
+        /* Garis Masuk dari Kiri */
+        .bracket-round:nth-child(n+2) .matchup::before {
+            content: "";
+            position: absolute;
+            left: -12px;
+            top: 50%;
+            width: 12px;
+            height: 2px;
+            background-color: #0d6efd;
+        }
+
+        /* Garis Vertikal Penghubung Dua Matchup */
+        .bracket-round:not(:last-child) .matchup:nth-child(even)::after {
+            height: calc(100% + 18px);
+            top: auto;
+            bottom: 50%;
+            border-right: 2px solid #0d6efd;
+            border-top: 2px solid #0d6efd;
+            border-top-right-radius: 4px;
+            background-color: transparent;
+        }
+
+        .bracket-round:not(:last-child) .matchup:nth-child(odd)::after {
+            height: calc(100% + 18px);
+            top: 50%;
+            border-right: 2px solid #0d6efd;
+            border-bottom: 2px solid #0d6efd;
+            border-bottom-right-radius: 4px;
+            background-color: transparent;
+        }
+
+        .slot-title {
+            font-size: 0.72rem;
+            font-weight: bold;
+            color: #6c757d;
+            margin-bottom: 2px;
+        }
+
+        .slot-select, .slot-date {
+            font-size: 0.8rem !important;
+            padding: 4px 6px !important;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .trophy-icon {
+            font-size: 1.1rem !important;
+            margin-bottom: 2px;
+        }
+
+        .chart-pie-container {
+            max-width: 250px;
+            margin: 0 auto;
+            position: relative;
+        }
     </style>
 </head>
 
 <body>
 
+<!-- Running Text Header -->
+<div class="running-text-bar">
+    <marquee behavior="scroll" direction="left" scrollamount="6">
+        <i class="fa-solid fa-flag-checkered me-2"></i>Semarak Perayaan HUT RI Ke-81 Lembaga Alkitab Indonesia — Junjung Tinggi Sportivitas dan Kebersamaan Dalam Pertandingan! <i class="fa-solid fa-star ms-3 me-2"></i> Indonesia Berdaulat Adil dan Makmur © 2026 GusPur PPM LAI
+    </marquee>
+</div>
+
 <!-- Header Navbar -->
-<nav class="navbar">
-    <div class="container d-flex justify-content-between align-items-center">
-        <span class="navbar-brand">
-            <i class="fa-solid fa-trophy"></i> TURNAMEN HUT RI KE-81 LAI
-        </span>
-        <div class="header-datetime text-end">
-            <i class="fa-regular fa-clock me-1"></i>
-            <span id="realtimeClock">Memuat waktu...</span>
+<nav class="navbar navbar-expand-lg sticky-top navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <!-- Logo HUT RI ke-81 -->
+            <img src="hut-ri-81-3864-1024x1024.png" alt="Logo HUT RI 81" class="logo-hut">
+            <span><i class="fa-solid fa-trophy me-1"></i> PORTAL TURNAMEN LAI</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav nav-portal me-auto my-2 my-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" id="nav-pendaftaran" href="#" onclick="switchPortal('pendaftaran'); return false;">
+                        <i class="fa-solid fa-address-card me-1"></i> Pendaftaran & Data Peserta
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="nav-bagan" href="#" onclick="switchPortal('bagan'); return false;">
+                        <i class="fa-solid fa-lock me-1"></i> Bagan Pertandingan
+                    </a>
+                </li>
+            </ul>
+            <div class="header-datetime text-lg-end text-white mt-2 mt-lg-0">
+                <i class="fa-regular fa-clock me-1"></i>
+                <span id="realtimeClock">Memuat waktu...</span>
+            </div>
         </div>
     </div>
 </nav>
 
 <div class="container mt-4">
-    <!-- Ringkasan Statistik -->
-    <div class="row g-3">
-        <div class="col-md-3">
-            <div class="card card-dashboard card1">
-                <div class="card-body text-center">
-                    <i class="fa-solid fa-users fa-2x"></i>
-                    <h2 id="totalPeserta">0</h2>
-                    Total Peserta
+
+    <!-- PORTAL 1: HALAMAN PENDAFTARAN & DATA PESERTA -->
+    <div id="portal-pendaftaran">
+        <div class="row g-3">
+            <div class="col-6 col-md-3">
+                <div class="card card-dashboard card1">
+                    <div class="card-body text-center p-3">
+                        <i class="fa-solid fa-users fa-2x"></i>
+                        <h2 id="totalPeserta" class="my-1">0</h2>
+                        <small>Total Peserta</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card card-dashboard card2">
+                    <div class="card-body text-center p-3">
+                        <i class="fa-solid fa-person fa-2x"></i>
+                        <h2 id="pria" class="my-1">0</h2>
+                        <small>Peserta Pria</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card card-dashboard card3">
+                    <div class="card-body text-center p-3">
+                        <i class="fa-solid fa-person-dress fa-2x"></i>
+                        <h2 id="wanita" class="my-1">0</h2>
+                        <small>Peserta Wanita</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card card-dashboard card4">
+                    <div class="card-body text-center p-3">
+                        <i class="fa-solid fa-medal fa-2x"></i>
+                        <h2 class="my-1">2</h2>
+                        <small>Cabang Lomba</small>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card card-dashboard card2">
-                <div class="card-body text-center">
-                    <i class="fa-solid fa-person fa-2x"></i>
-                    <h2 id="pria">0</h2>
-                    Peserta Pria
+
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <div class="card form-card shadow">
+                    <div class="card-header bg-danger text-white">
+                        <b><i class="fa-solid fa-user-plus me-1"></i> Form Pendaftaran</b>
+                    </div>
+                    <div class="card-body">
+                        <form id="registrationForm">
+                            <div class="mb-3">
+                                <label for="nama" class="form-label">Nama Peserta</label>
+                                <input type="text" id="nama" class="form-control" placeholder="Nama Lengkap" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="telepon" class="form-label">Nomor Telepon / WhatsApp</label>
+                                <input type="tel" id="telepon" class="form-control" placeholder="Contoh: 08123456789" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="bagian" class="form-label">Bagian / Departemen</label>
+                                <input type="text" id="bagian" class="form-control" placeholder="Contoh: Produksi, Maintenance, dll." required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="jenisKelamin" class="form-label">Jenis Kelamin</label>
+                                <select id="jenisKelamin" class="form-select">
+                                    <option value="Laki-laki">Laki-laki</option>
+                                    <option value="Perempuan">Perempuan</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cabangLomba" class="form-label">Cabang Lomba</label>
+                                <select id="cabangLomba" class="form-select">
+                                    <option value="Badminton">Badminton</option>
+                                    <option value="Tenis Meja (Khusus Pria)" id="optTenisMeja">Tenis Meja (Khusus Pria)</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-danger w-100">
+                                <i class="fa-solid fa-paper-plane"></i> Daftar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 mt-4 mt-lg-0">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-primary text-white">
+                        <b><i class="fa-solid fa-chart-column me-1"></i> Grafik Peserta per Lomba</b>
+                    </div>
+                    <div class="card-body d-flex align-items-center">
+                        <div class="w-100">
+                            <canvas id="chartPeserta"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card card-dashboard card3">
-                <div class="card-body text-center">
-                    <i class="fa-solid fa-person-dress fa-2x"></i>
-                    <h2 id="wanita">0</h2>
-                    Peserta Wanita
+
+        <div class="card table-card shadow mt-4">
+            <div class="card-header bg-success text-white">
+                <div class="row align-items-center g-2">
+                    <div class="col-12 col-md-6">
+                        <b><i class="fa-solid fa-list me-1"></i> Data Peserta Terdaftar</b>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Cari nama/bagian/lomba...">
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card card-dashboard card4">
-                <div class="card-body text-center">
-                    <i class="fa-solid fa-medal fa-2x"></i>
-                    <h2>2</h2>
-                    Cabang Lomba
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama</th>
+                                <th>Bagian</th>
+                                <th>Lomba</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr>
+                                <td colspan="5" class="text-center">Memuat data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Form & Grafik -->
-    <div class="row mt-4">
-        <div class="col-lg-6">
-            <div class="card form-card shadow">
-                <div class="card-header bg-danger text-white">
-                    <b>Form Pendaftaran</b>
+    <!-- PORTAL 2: HALAMAN BAGAN PERTANDINGAN -->
+    <div id="portal-bagan" style="display: none;">
+        
+        <!-- RINGKASAN PROGRESS PERTANDINGAN (PIE CHARTS) -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card shadow border-0">
+                    <div class="card-header bg-primary text-white fw-bold">
+                        <i class="fa-solid fa-chart-pie me-2"></i>Progress Pertandingan Badminton
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="chart-pie-container">
+                            <canvas id="chartProgressBadminton"></canvas>
+                        </div>
+                        <div class="mt-2 text-muted small" id="badgeBadmintonProgress">
+                            0 / 0 Match Slot Terisi
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <form id="registrationForm">
-                        <div class="mb-3">
-                            <label for="nama" class="form-label">Nama Peserta</label>
-                            <input type="text" id="nama" class="form-control" placeholder="Nama Lengkap" required>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow border-0">
+                    <div class="card-header bg-warning text-dark fw-bold">
+                        <i class="fa-solid fa-chart-pie me-2"></i>Progress Pertandingan Tenis Meja
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="chart-pie-container">
+                            <canvas id="chartProgressTenis"></canvas>
                         </div>
-                        <div class="mb-3">
-                            <label for="telepon" class="form-label">Nomor Telepon / WhatsApp</label>
-                            <input type="tel" id="telepon" class="form-control" placeholder="Contoh: 08123456789" required>
+                        <div class="mt-2 text-muted small" id="badgeTenisProgress">
+                            0 / 0 Match Slot Terisi
                         </div>
-                        <div class="mb-3">
-                            <label for="bagian" class="form-label">Bagian</label>
-                            <input type="text" id="bagian" class="form-control" placeholder="Contoh: Produksi, Maintenance, dll." required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="jenisKelamin" class="form-label">Jenis Kelamin</label>
-                            <select id="jenisKelamin" class="form-select">
-                                <option value="Laki-laki">Laki-laki</option>
-                                <option value="Perempuan">Perempuan</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="cabangLomba" class="form-label">Cabang Lomba</label>
-                            <select id="cabangLomba" class="form-select">
-                                <option value="Badminton">Badminton</option>
-                                <option value="Tenis Meja (Khusus Pria)" id="optTenisMeja">Tenis Meja (Khusus Pria)</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-danger w-100">
-                            <i class="fa-solid fa-paper-plane"></i> Daftar
-                        </button>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-6 mt-4 mt-lg-0">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <b>Grafik Peserta per Lomba</b>
-                </div>
-                <div class="card-body">
-                    <canvas id="chartPeserta"></canvas>
+        <!-- CARD BAGAN PERTANDINGAN DINAMIS -->
+        <div class="card bracket-card shadow">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <b><i class="fa-solid fa-sitemap me-2"></i>Bagan Pertandingan Dinamis</b>
+                <ul class="nav nav-pills card-header-pills" id="bracketTabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active bg-light text-dark fw-bold btn-sm me-1" id="badminton-tab" data-bs-toggle="tab" data-bs-target="#badminton-bracket" type="button">Badminton</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link text-white btn-sm" id="tenis-tab" data-bs-toggle="tab" data-bs-target="#tenis-bracket" type="button">Tenis Meja</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body p-2 p-md-3">
+                <div class="tab-content" id="bracketTabContent">
+                    <div class="tab-pane fade show active" id="badminton-bracket" role="tabpanel">
+                        <div class="bracket-container" id="badmintonContainer"></div>
+                    </div>
+                    <div class="tab-pane fade" id="tenis-bracket" role="tabpanel">
+                        <div class="bracket-container" id="tenisContainer"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Tabel Data Peserta -->
-    <div class="card table-card shadow mt-4">
-        <div class="card-header bg-success text-white">
-            <div class="d-flex justify-content-between align-items-center">
-                <b>Data Peserta</b>
-                <input type="text" id="searchInput" class="form-control w-50 w-md-25" placeholder="Cari...">
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-striped align-middle">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Nama</th>
-                            <th>Bagian</th>
-                            <th>Lomba</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        <tr>
-                            <td colspan="5" class="text-center">Memuat data...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 </div>
 
 <footer class="text-center">
-    Dashboard Pendaftaran Turnamen HUT RI ke-81 LAI © 2026
+    Dashboard Pendaftaran Turnamen © 2026 GusPur PPM LAI
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -177,9 +437,11 @@
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbyPIlq0w5VHgPu9sFLQIt3ZG79DEunKS3UMqqcV6Eam47s6TFCglmWYWFwy9xJKqGlAag/exec";
-
+const PASSWORD_BAGAN = "admin123"; 
+let isBaganUnlocked = false;
 let pesertaData = [];
 let chartPeserta;
+let chartProgressBadminton, chartProgressTenis;
 
 const form = document.getElementById("registrationForm");
 const tableBody = document.getElementById("tableBody");
@@ -187,6 +449,39 @@ const searchInput = document.getElementById("searchInput");
 const selectJenisKelamin = document.getElementById("jenisKelamin");
 const selectCabangLomba = document.getElementById("cabangLomba");
 const optTenisMeja = document.getElementById("optTenisMeja");
+
+function switchPortal(target) {
+    const pendaftaranDiv = document.getElementById("portal-pendaftaran");
+    const baganDiv = document.getElementById("portal-bagan");
+    const navPendaftaran = document.getElementById("nav-pendaftaran");
+    const navBagan = document.getElementById("nav-bagan");
+
+    if (target === 'pendaftaran') {
+        pendaftaranDiv.style.display = "block";
+        baganDiv.style.display = "none";
+        navPendaftaran.classList.add("active");
+        navBagan.classList.remove("active");
+    } else {
+        if (!isBaganUnlocked) {
+            const inputPass = prompt("Masukkan Kata Sandi untuk Mengakses Bagan Pertandingan:");
+            if (inputPass === null) return;
+
+            if (inputPass === PASSWORD_BAGAN) {
+                alert("Kata sandi benar! Akses bagan dibuka.");
+                isBaganUnlocked = true;
+            } else {
+                alert("Kata sandi salah! Akses ditolak.");
+                return;
+            }
+        }
+        pendaftaranDiv.style.display = "none";
+        baganDiv.style.display = "block";
+        navPendaftaran.classList.remove("active");
+        navBagan.classList.add("active");
+
+        updateProgressPieCharts();
+    }
+}
 
 function updateClock() {
     const now = new Date();
@@ -196,9 +491,8 @@ function updateClock() {
     const menit = String(now.getMinutes()).padStart(2, '0');
     const detik = String(now.getSeconds()).padStart(2, '0');
 
-    document.getElementById('realtimeClock').innerHTML = `${tanggal} | ${jam}:${menit}:${detik} WIB`;
+    document.getElementById('realtimeClock').innerText = `${tanggal} | ${jam}:${menit}:${detik} WIB`;
 }
-
 setInterval(updateClock, 1000);
 updateClock();
 
@@ -215,11 +509,9 @@ selectJenisKelamin.addEventListener("change", function() {
 
 form.addEventListener("submit", async function(e) {
     e.preventDefault();
-
     const submitBtn = form.querySelector("button[type='submit']");
     const noTelepon = document.getElementById("telepon").value.trim();
     
-    // Mengirimkan 'telepon' sekaligus 'nik' agar backend versi lama maupun baru tidak melempar error
     const payload = {
         action: "register",
         nama: document.getElementById("nama").value.trim(),
@@ -236,11 +528,6 @@ form.addEventListener("submit", async function(e) {
         return;
     }
 
-    if (payload.jenisKelamin === "Perempuan" && payload.cabangLomba === "Tenis Meja (Khusus Pria)") {
-        alert("Mohon maaf, cabang lomba Tenis Meja khusus untuk peserta Pria.");
-        return;
-    }
-
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
 
@@ -250,7 +537,6 @@ form.addEventListener("submit", async function(e) {
             headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(payload)
         });
-
         const result = await response.json();
 
         if (result.success) {
@@ -261,7 +547,6 @@ form.addEventListener("submit", async function(e) {
         } else {
             alert(result.message || "Pendaftaran gagal.");
         }
-
     } catch (error) {
         alert("Terjadi kesalahan koneksi: " + error.message);
     } finally {
@@ -280,29 +565,17 @@ async function loadData() {
             updateDashboard();
             renderTable(pesertaData);
             updateChart();
-        } else {
-            throw new Error(result.message || "Gagal memuat data");
+            generateDynamicBrackets();
         }
     } catch (error) {
         console.error("Gagal mengambil data:", error);
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="5" class="text-center text-danger fw-bold">
-                    <i class="fa-solid fa-triangle-exclamation"></i> Gagal memuat data peserta.
-                </td>
-            </tr>
-        `;
     }
 }
 
 function updateDashboard() {
-    const total = pesertaData.length;
-    const pria = pesertaData.filter(p => p.jenisKelamin === "Laki-laki").length;
-    const wanita = pesertaData.filter(p => p.jenisKelamin === "Perempuan").length;
-
-    document.getElementById("totalPeserta").innerText = total;
-    document.getElementById("pria").innerText = pria;
-    document.getElementById("wanita").innerText = wanita;
+    document.getElementById("totalPeserta").innerText = pesertaData.length;
+    document.getElementById("pria").innerText = pesertaData.filter(p => p.jenisKelamin === "Laki-laki").length;
+    document.getElementById("wanita").innerText = pesertaData.filter(p => p.jenisKelamin === "Perempuan").length;
 }
 
 function renderTable(data) {
@@ -315,24 +588,18 @@ function renderTable(data) {
     data.forEach((p, index) => {
         const isPending = !p.status || p.status === "Pending";
         const statusText = isPending ? "Sudah Mendaftar" : p.status;
-        const statusClass = 
-            p.status === "Terverifikasi" ? "bg-success" :
-            p.status === "Ditolak" ? "bg-danger" :
-            isPending ? "bg-primary text-white" : "bg-secondary";
-
-        const bagianText = p.bagian || p.departemen || "-";
+        const statusClass = p.status === "Terverifikasi" ? "bg-success" : p.status === "Ditolak" ? "bg-danger" : "bg-primary text-white";
 
         rowsHtml += `
             <tr>
                 <td>${index + 1}</td>
                 <td>${escapeHtml(p.nama)}</td>
-                <td>${escapeHtml(bagianText)}</td>
+                <td>${escapeHtml(p.bagian || p.departemen || '-')}</td>
                 <td>${escapeHtml(p.cabangLomba)}</td>
                 <td><span class="badge ${statusClass}">${escapeHtml(statusText)}</span></td>
             </tr>
         `;
     });
-
     tableBody.innerHTML = rowsHtml;
 }
 
@@ -355,9 +622,219 @@ function updateChart() {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
         }
     });
+}
+
+/* =========================================================
+   FUNGSI GENERATE BAGAN DINAMIS OTOMATIS SESUAI PESERTA
+   ========================================================= */
+function generateDynamicBrackets() {
+    const badmintonPlayers = pesertaData.filter(p => p.cabangLomba === "Badminton");
+    const tenisPlayers = pesertaData.filter(p => p.cabangLomba === "Tenis Meja (Khusus Pria)");
+
+    buildBracket(badmintonPlayers, "badmintonContainer", "select-badminton", "date-badminton", "Badminton");
+    buildBracket(tenisPlayers, "tenisContainer", "select-tenis", "date-tenis", "Tenis Meja");
+
+    document.querySelectorAll(".slot-select").forEach(select => {
+        select.addEventListener("change", updateProgressPieCharts);
+    });
+
+    updateProgressPieCharts();
+}
+
+function buildBracket(players, containerId, selectClass, dateClass, sportName) {
+    const container = document.getElementById(containerId);
+    
+    // Simpan pilihan user & tanggal sebelumnya
+    const savedSelections = [];
+    const savedDates = [];
+    container.querySelectorAll(`.${selectClass}`).forEach((select, idx) => {
+        savedSelections[idx] = select.value;
+    });
+    container.querySelectorAll(`.${dateClass}`).forEach((inputDate, idx) => {
+        savedDates[idx] = inputDate.value;
+    });
+
+    container.innerHTML = "";
+
+    const count = players.length;
+    if (count < 2) {
+        container.innerHTML = `
+            <div class="p-4 text-center text-muted w-100">
+                <i class="fa-solid fa-circle-info fa-2x mb-2 d-block"></i>
+                Belum cukup peserta terdaftar untuk membuat bagan ${sportName} (Minimal 2 peserta).
+            </div>`;
+        return;
+    }
+
+    let bracketSize = 2;
+    while (bracketSize < count) {
+        bracketSize *= 2;
+    }
+
+    const rounds = [];
+    let currentMatches = bracketSize / 2;
+
+    while (currentMatches >= 1) {
+        let title = "";
+        if (currentMatches === 1) title = "Final & Juara";
+        else if (currentMatches === 2) title = "Semi Final";
+        else if (currentMatches === 4) title = "Perempat Final";
+        else title = `Babak ${currentMatches * 2} Besar`;
+
+        rounds.push({ title: title, matches: currentMatches });
+        currentMatches /= 2;
+    }
+
+    rounds.forEach((round, roundIndex) => {
+        const roundDiv = document.createElement("div");
+        roundDiv.className = "bracket-round";
+
+        const titleDiv = document.createElement("div");
+        titleDiv.className = "bracket-round-title";
+        titleDiv.innerText = round.title;
+        roundDiv.appendChild(titleDiv);
+
+        for (let i = 1; i <= round.matches; i++) {
+            const matchDiv = document.createElement("div");
+            matchDiv.className = "matchup";
+
+            matchDiv.innerHTML = `
+                <div class="mb-1">
+                    <span class="slot-title"><i class="fa-regular fa-calendar-days me-1"></i>Match ${i}:</span>
+                    <input type="datetime-local" class="form-control slot-date ${dateClass}">
+                </div>
+                <div class="slot-title">Player A</div>
+                <select class="form-select slot-select mb-1 ${selectClass}"></select>
+                <div class="slot-title">Player B</div>
+                <select class="form-select slot-select ${selectClass}"></select>
+            `;
+            roundDiv.appendChild(matchDiv);
+        }
+
+        if (roundIndex === rounds.length - 1) {
+            const winnerDiv = document.createElement("div");
+            winnerDiv.className = "matchup text-center p-2 bg-warning text-dark fw-bold";
+            winnerDiv.innerHTML = `
+                <i class="fa-solid fa-trophy trophy-icon d-block text-dark"></i>
+                <div class="slot-title text-dark">Juara 1 ${sportName}</div>
+                <select class="form-select slot-select ${selectClass}"></select>
+            `;
+            roundDiv.appendChild(winnerDiv);
+        }
+
+        container.appendChild(roundDiv);
+    });
+
+    fillSelectOptions(`.${selectClass}`, players, savedSelections);
+    restoreInputDates(`.${dateClass}`, savedDates);
+}
+
+function fillSelectOptions(selector, playersList, savedSelections = []) {
+    const selects = document.querySelectorAll(selector);
+
+    selects.forEach((select, index) => {
+        let optionsHtml = `<option value="">-- Pilih Peserta --</option>`;
+        optionsHtml += `<option value="BYE (Lolos Otomatis)">BYE (Lolos Otomatis)</option>`;
+
+        playersList.forEach(p => {
+            const labelStr = `${p.nama} (${p.bagian || p.departemen || '-'})`;
+            optionsHtml += `<option value="${escapeHtml(labelStr)}">${escapeHtml(labelStr)}</option>`;
+        });
+
+        select.innerHTML = optionsHtml;
+        if (savedSelections[index]) {
+            select.value = savedSelections[index];
+        }
+    });
+}
+
+function restoreInputDates(selector, savedDates = []) {
+    const inputs = document.querySelectorAll(selector);
+    inputs.forEach((input, index) => {
+        if (savedDates[index]) {
+            input.value = savedDates[index];
+        }
+    });
+}
+
+/* =========================================================
+   FUNGSI HITUNG & PIE CHART PROGRESS PERTANDINGAN
+   ========================================================= */
+function updateProgressPieCharts() {
+    const badmintonSelects = document.querySelectorAll(".select-badminton");
+    let badmintonTotal = badmintonSelects.length;
+    let badmintonFilled = 0;
+    badmintonSelects.forEach(s => { if (s.value) badmintonFilled++; });
+
+    const tenisSelects = document.querySelectorAll(".select-tenis");
+    let tenisTotal = tenisSelects.length;
+    let tenisFilled = 0;
+    tenisSelects.forEach(s => { if (s.value) tenisFilled++; });
+
+    renderSinglePieChart(
+        'chartProgressBadminton', 
+        chartProgressBadminton, 
+        (chart) => chartProgressBadminton = chart, 
+        badmintonFilled, 
+        badmintonTotal - badmintonFilled, 
+        ['Terisi / Selesai', 'Belum Terisi'], 
+        ['#2e7d32', '#e0e0e0'],
+        'badgeBadmintonProgress'
+    );
+
+    renderSinglePieChart(
+        'chartProgressTenis', 
+        chartProgressTenis, 
+        (chart) => chartProgressTenis = chart, 
+        tenisFilled, 
+        tenisTotal - tenisFilled, 
+        ['Terisi / Selesai', 'Belum Terisi'], 
+        ['#ff9800', '#e0e0e0'],
+        'badgeTenisProgress'
+    );
+}
+
+function renderSinglePieChart(canvasId, existingChart, setChartRef, filled, empty, labels, colors, badgeId) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
+
+    const total = filled + empty;
+    const percentage = total > 0 ? Math.round((filled / total) * 100) : 0;
+    
+    document.getElementById(badgeId).innerText = `${filled} / ${total} Slot Pertandingan Terisi (${percentage}%)`;
+
+    if (existingChart) existingChart.destroy();
+
+    const newChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: total > 0 ? [filled, empty] : [0, 1],
+                backgroundColor: total > 0 ? colors : ['#cccccc', '#eeeeee']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return ` ${context.label}: ${context.raw} slot`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    setChartRef(newChart);
 }
 
 searchInput.addEventListener("input", function() {
