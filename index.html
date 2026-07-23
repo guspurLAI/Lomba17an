@@ -85,9 +85,9 @@
             display: flex;
             flex-direction: column;
             justify-content: space-around;
-            flex: 1 1 240px;
-            min-width: 220px;
-            max-width: 320px;
+            flex: 1 1 260px;
+            min-width: 240px;
+            max-width: 340px;
             position: relative;
         }
 
@@ -186,10 +186,70 @@
             margin: 0 auto;
             position: relative;
         }
+
+        /* Pop-up Styles for the Poster */
+        .poster-popup {
+            display: none; 
+            position: fixed; 
+            z-index: 2000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.85); 
+            backdrop-filter: blur(4px);
+        }
+
+        .poster-popup-content {
+            background-color: #ffffff;
+            margin: 3% auto; 
+            padding: 15px;
+            border-radius: 12px;
+            position: relative;
+            width: 90%;
+            max-width: 600px;
+            max-height: 92vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .poster-popup-close {
+            color: #333;
+            position: absolute;
+            top: 5px;
+            right: 15px;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .poster-popup-close:hover {
+            color: #b71c1c;
+        }
+
+        .poster-image {
+            width: 100%;
+            height: auto;
+            max-height: 80vh;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+            border-radius: 6px;
+        }
     </style>
 </head>
 
 <body>
+
+<!-- Poster Pop-up Modal -->
+<div id="posterPopup" class="poster-popup">
+    <div class="poster-popup-content">
+        <span class="poster-popup-close">&times;</span>
+        <img src="poster-turnamen.jpeg" alt="Poster Jadwal dan Aturan Turnamen" class="poster-image">
+    </div>
+</div>
 
 <!-- Running Text Header -->
 <div class="running-text-bar">
@@ -202,7 +262,6 @@
 <nav class="navbar navbar-expand-lg sticky-top navbar-dark">
     <div class="container">
         <a class="navbar-brand" href="#">
-            <!-- Logo HUT RI ke-81 -->
             <img src="hut-ri-81-3864-1024x1024.png" alt="Logo HUT RI 81" class="logo-hut">
             <span><i class="fa-solid fa-trophy me-1"></i> PORTAL TURNAMEN LAI</span>
         </a>
@@ -214,6 +273,11 @@
                 <li class="nav-item">
                     <a class="nav-link active" id="nav-pendaftaran" href="#" onclick="switchPortal('pendaftaran'); return false;">
                         <i class="fa-solid fa-address-card me-1"></i> Pendaftaran & Data Peserta
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="nav-jadwal" href="#" onclick="showPosterPopup(); return false;">
+                        <i class="fa-solid fa-calendar-alt me-1"></i> Jadwal Tanding dan Aturan
                     </a>
                 </li>
                 <li class="nav-item">
@@ -416,7 +480,32 @@
             <div class="card-body p-2 p-md-3">
                 <div class="tab-content" id="bracketTabContent">
                     <div class="tab-pane fade show active" id="badminton-bracket" role="tabpanel">
-                        <div class="bracket-container" id="badmintonContainer"></div>
+                        <ul class="nav nav-tabs mb-3" id="badmintonGenderTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active fw-bold" id="ganda-putra-tab" data-bs-toggle="tab" data-bs-target="#ganda-putra-bracket" type="button" role="tab">
+                                    <i class="fa-solid fa-mars me-1"></i> Ganda Putra
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-bold" id="ganda-putri-tab" data-bs-toggle="tab" data-bs-target="#ganda-putri-bracket" type="button" role="tab">
+                                    <i class="fa-solid fa-venus me-1"></i> Ganda Putri
+                                </button>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="ganda-putra-bracket" role="tabpanel">
+                                <div class="alert alert-primary py-2 mb-3">
+                                    <i class="fa-solid fa-users me-1"></i> Bagan khusus pasangan <strong>Ganda Putra</strong> (Setiap tim terdiri dari Peserta 1 & Peserta 2)
+                                </div>
+                                <div class="bracket-container" id="badmintonPutraContainer"></div>
+                            </div>
+                            <div class="tab-pane fade" id="ganda-putri-bracket" role="tabpanel">
+                                <div class="alert alert-danger py-2 mb-3">
+                                    <i class="fa-solid fa-users me-1"></i> Bagan khusus pasangan <strong>Ganda Putri</strong> (Setiap tim terdiri dari Peserta 1 & Peserta 2)
+                                </div>
+                                <div class="bracket-container" id="badmintonPutriContainer"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="tab-pane fade" id="tenis-bracket" role="tabpanel">
                         <div class="bracket-container" id="tenisContainer"></div>
@@ -450,21 +539,51 @@ const selectJenisKelamin = document.getElementById("jenisKelamin");
 const selectCabangLomba = document.getElementById("cabangLomba");
 const optTenisMeja = document.getElementById("optTenisMeja");
 
+// Get navigation elements
+const pendaftaranDiv = document.getElementById("portal-pendaftaran");
+const baganDiv = document.getElementById("portal-bagan");
+const navPendaftaran = document.getElementById("nav-pendaftaran");
+const navJadwal = document.getElementById("nav-jadwal");
+const navBagan = document.getElementById("nav-bagan");
+
+// Get pop-up elements
+const posterPopup = document.getElementById("posterPopup");
+const posterPopupClose = document.querySelector(".poster-popup-close");
+
+// Function to show the poster pop-up
+function showPosterPopup() {
+    posterPopup.style.display = "block";
+}
+
+// Function to hide the poster pop-up
+function hidePosterPopup() {
+    posterPopup.style.display = "none";
+}
+
+// Event listener for closing the pop-up
+posterPopupClose.addEventListener("click", hidePosterPopup);
+
+// Close pop-up when clicking outside the content
+window.addEventListener("click", function(event) {
+    if (event.target === posterPopup) {
+        hidePosterPopup();
+    }
+});
+
 function switchPortal(target) {
-    const pendaftaranDiv = document.getElementById("portal-pendaftaran");
-    const baganDiv = document.getElementById("portal-bagan");
-    const navPendaftaran = document.getElementById("nav-pendaftaran");
-    const navBagan = document.getElementById("nav-bagan");
+    pendaftaranDiv.style.display = "none";
+    baganDiv.style.display = "none";
+
+    navPendaftaran.classList.remove("active");
+    navBagan.classList.remove("active");
 
     if (target === 'pendaftaran') {
         pendaftaranDiv.style.display = "block";
-        baganDiv.style.display = "none";
         navPendaftaran.classList.add("active");
-        navBagan.classList.remove("active");
-    } else {
+    } else if (target === 'bagan') {
         if (!isBaganUnlocked) {
             const inputPass = prompt("Masukkan Kata Sandi untuk Mengakses Bagan Pertandingan:");
-            if (inputPass === null) return;
+            if (inputPass === null) return; 
 
             if (inputPass === PASSWORD_BAGAN) {
                 alert("Kata sandi benar! Akses bagan dibuka.");
@@ -474,11 +593,8 @@ function switchPortal(target) {
                 return;
             }
         }
-        pendaftaranDiv.style.display = "none";
         baganDiv.style.display = "block";
-        navPendaftaran.classList.remove("active");
         navBagan.classList.add("active");
-
         updateProgressPieCharts();
     }
 }
@@ -628,27 +744,30 @@ function updateChart() {
     });
 }
 
-/* =========================================================
-   FUNGSI GENERATE BAGAN DINAMIS OTOMATIS SESUAI PESERTA
-   ========================================================= */
 function generateDynamicBrackets() {
     const badmintonPlayers = pesertaData.filter(p => p.cabangLomba === "Badminton");
     const tenisPlayers = pesertaData.filter(p => p.cabangLomba === "Tenis Meja (Khusus Pria)");
 
-    buildBracket(badmintonPlayers, "badmintonContainer", "select-badminton", "date-badminton", "Badminton");
-    buildBracket(tenisPlayers, "tenisContainer", "select-tenis", "date-tenis", "Tenis Meja");
+    // Badminton dipisahkan menjadi Ganda Putra dan Ganda Putri
+    const gandaPutra = badmintonPlayers.filter(p => p.jenisKelamin === "Laki-laki");
+    const gandaPutri = badmintonPlayers.filter(p => p.jenisKelamin === "Perempuan");
+
+    // Menampilkan bagan ganda (dua peserta per tim) untuk Badminton, dan tunggal untuk Tenis Meja
+    buildBracket(gandaPutra, "badmintonPutraContainer", "select-badminton-putra", "date-badminton-putra", "Badminton Ganda Putra", true);
+    buildBracket(gandaPutri, "badmintonPutriContainer", "select-badminton-putri", "date-badminton-putri", "Badminton Ganda Putri", true);
+    buildBracket(tenisPlayers, "tenisContainer", "select-tenis", "date-tenis", "Tenis Meja", false);
 
     document.querySelectorAll(".slot-select").forEach(select => {
+        select.removeEventListener("change", updateProgressPieCharts);
         select.addEventListener("change", updateProgressPieCharts);
     });
 
     updateProgressPieCharts();
 }
 
-function buildBracket(players, containerId, selectClass, dateClass, sportName) {
+function buildBracket(players, containerId, selectClass, dateClass, sportName, isDoubles = false) {
     const container = document.getElementById(containerId);
     
-    // Simpan pilihan user & tanggal sebelumnya
     const savedSelections = [];
     const savedDates = [];
     container.querySelectorAll(`.${selectClass}`).forEach((select, idx) => {
@@ -702,27 +821,62 @@ function buildBracket(players, containerId, selectClass, dateClass, sportName) {
             const matchDiv = document.createElement("div");
             matchDiv.className = "matchup";
 
-            matchDiv.innerHTML = `
-                <div class="mb-1">
-                    <span class="slot-title"><i class="fa-regular fa-calendar-days me-1"></i>Match ${i}:</span>
-                    <input type="datetime-local" class="form-control slot-date ${dateClass}">
-                </div>
-                <div class="slot-title">Player A</div>
-                <select class="form-select slot-select mb-1 ${selectClass}"></select>
-                <div class="slot-title">Player B</div>
-                <select class="form-select slot-select ${selectClass}"></select>
-            `;
+            if (isDoubles) {
+                // Tampilan untuk Ganda (Badminton): Tim A (Peserta 1 & 2) vs Tim B (Peserta 1 & 2)
+                matchDiv.innerHTML = `
+                    <div class="mb-1">
+                        <span class="slot-title"><i class="fa-regular fa-calendar-days me-1"></i>Match ${i}:</span>
+                        <input type="datetime-local" class="form-control slot-date ${dateClass}">
+                    </div>
+                    
+                    <div class="p-1 mb-2 border rounded bg-light">
+                        <div class="slot-title text-primary"><i class="fa-solid fa-users me-1"></i>Tim A</div>
+                        <select class="form-select slot-select mb-1 ${selectClass}"></select>
+                        <select class="form-select slot-select ${selectClass}"></select>
+                    </div>
+
+                    <div class="p-1 border rounded bg-light">
+                        <div class="slot-title text-danger"><i class="fa-solid fa-users me-1"></i>Tim B</div>
+                        <select class="form-select slot-select mb-1 ${selectClass}"></select>
+                        <select class="form-select slot-select ${selectClass}"></select>
+                    </div>
+                `;
+            } else {
+                // Tampilan untuk Tunggal (Tenis Meja)
+                matchDiv.innerHTML = `
+                    <div class="mb-1">
+                        <span class="slot-title"><i class="fa-regular fa-calendar-days me-1"></i>Match ${i}:</span>
+                        <input type="datetime-local" class="form-control slot-date ${dateClass}">
+                    </div>
+                    <div class="slot-title">Pemain A</div>
+                    <select class="form-select slot-select mb-1 ${selectClass}"></select>
+                    <div class="slot-title">Pemain B</div>
+                    <select class="form-select slot-select ${selectClass}"></select>
+                `;
+            }
+
             roundDiv.appendChild(matchDiv);
         }
 
         if (roundIndex === rounds.length - 1) {
             const winnerDiv = document.createElement("div");
             winnerDiv.className = "matchup text-center p-2 bg-warning text-dark fw-bold";
-            winnerDiv.innerHTML = `
-                <i class="fa-solid fa-trophy trophy-icon d-block text-dark"></i>
-                <div class="slot-title text-dark">Juara 1 ${sportName}</div>
-                <select class="form-select slot-select ${selectClass}"></select>
-            `;
+
+            if (isDoubles) {
+                winnerDiv.innerHTML = `
+                    <i class="fa-solid fa-trophy trophy-icon d-block text-dark"></i>
+                    <div class="slot-title text-dark">Juara 1 ${sportName}</div>
+                    <select class="form-select slot-select mb-1 ${selectClass}"></select>
+                    <select class="form-select slot-select ${selectClass}"></select>
+                `;
+            } else {
+                winnerDiv.innerHTML = `
+                    <i class="fa-solid fa-trophy trophy-icon d-block text-dark"></i>
+                    <div class="slot-title text-dark">Juara 1 ${sportName}</div>
+                    <select class="form-select slot-select ${selectClass}"></select>
+                `;
+            }
+
             roundDiv.appendChild(winnerDiv);
         }
 
@@ -761,11 +915,8 @@ function restoreInputDates(selector, savedDates = []) {
     });
 }
 
-/* =========================================================
-   FUNGSI HITUNG & PIE CHART PROGRESS PERTANDINGAN
-   ========================================================= */
 function updateProgressPieCharts() {
-    const badmintonSelects = document.querySelectorAll(".select-badminton");
+    const badmintonSelects = document.querySelectorAll(".select-badminton-putra, .select-badminton-putri");
     let badmintonTotal = badmintonSelects.length;
     let badmintonFilled = 0;
     badmintonSelects.forEach(s => { if (s.value) badmintonFilled++; });
