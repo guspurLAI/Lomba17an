@@ -80,6 +80,18 @@
             height: 420px;
         }
 
+        /* Animasi Berkedip / Blinking Text */
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.2; }
+            100% { opacity: 1; }
+        }
+
+        .blink-text {
+            animation: blink 1.2s infinite ease-in-out;
+            font-weight: bold;
+        }
+
         /* Styling Bagan Turnamen */
         .bracket-container {
             display: flex;
@@ -412,7 +424,7 @@
                             <div class="col-4">
                                 <div class="p-2 border rounded text-center bg-light">
                                     <small class="d-block text-muted" style="font-size: 0.75rem;">Tenis Meja</small>
-                                    <strong id="quotaTenisText" class="text-danger small">TUTUP</strong>
+                                    <strong id="quotaTenisText" class="text-danger small blink-text">PENDAFTARAN TELAH DITUTUP</strong>
                                 </div>
                             </div>
                         </div>
@@ -441,7 +453,7 @@
                                 <label for="cabangLomba" class="form-label">Cabang Lomba</label>
                                 <select id="cabangLomba" class="form-select">
                                     <option value="Badminton" id="optBadminton">Badminton</option>
-                                    <option value="Tenis Meja (Khusus Pria)" id="optTenisMeja" disabled>Tenis Meja (TUTUP)</option>
+                                    <option value="Tenis Meja (Khusus Pria)" id="optTenisMeja" class="blink-text" disabled>Tenis Meja (PENDAFTARAN TELAH DITUTUP)</option>
                                 </select>
                             </div>
                             <button type="submit" id="submitBtn" class="btn btn-danger w-100">
@@ -582,6 +594,9 @@
                         </div>
                     </div>
                     <div class="tab-pane fade" id="tenis-bracket" role="tabpanel">
+                        <div class="alert alert-warning py-2 mb-3">
+                            <i class="fa-solid fa-sitemap me-1"></i> Bagan khusus **Tenis Meja (18 Peserta)** sesuai skema sistem gugur dengan 2 posisi BYE.
+                        </div>
                         <div class="bracket-container" id="tenisContainer"></div>
                     </div>
                 </div>
@@ -648,35 +663,56 @@ function checkRegistrationLimitsAndDeadline() {
     const countBadmintonPria = pesertaData.filter(p => p.cabangLomba === "Badminton" && p.jenisKelamin === "Laki-laki").length;
     const countBadmintonWanita = pesertaData.filter(p => p.cabangLomba === "Badminton" && p.jenisKelamin === "Perempuan").length;
 
-    document.getElementById("quotaBadmintonPriaText").innerText = `${countBadmintonPria} / ${MAX_BADMINTON_PRIA} Peserta`;
-    document.getElementById("quotaBadmintonWanitaText").innerText = `${countBadmintonWanita} / ${MAX_BADMINTON_WANITA} Peserta`;
-
     const isBadmintonPriaFull = countBadmintonPria >= MAX_BADMINTON_PRIA;
     const isBadmintonWanitaFull = countBadmintonWanita >= MAX_BADMINTON_WANITA;
 
+    // Update Status Teks + Animasi Berkedip pada Badminton Pria
+    const quotaPriaEl = document.getElementById("quotaBadmintonPriaText");
+    if (isBadmintonPriaFull) {
+        quotaPriaEl.innerText = "PENDAFTARAN TELAH DITUTUP";
+        quotaPriaEl.className = "text-danger small blink-text";
+    } else {
+        quotaPriaEl.innerText = `${countBadmintonPria} / ${MAX_BADMINTON_PRIA} Peserta`;
+        quotaPriaEl.className = "text-primary small";
+    }
+
+    // Update Status Teks + Animasi Berkedip pada Badminton Wanita
+    const quotaWanitaEl = document.getElementById("quotaBadmintonWanitaText");
+    if (isBadmintonWanitaFull) {
+        quotaWanitaEl.innerText = "PENDAFTARAN TELAH DITUTUP";
+        quotaWanitaEl.className = "text-danger small blink-text";
+    } else {
+        quotaWanitaEl.innerText = `${countBadmintonWanita} / ${MAX_BADMINTON_WANITA} Peserta`;
+        quotaWanitaEl.className = "text-success small";
+    }
+
     // Tenis Meja Selalu TUTUP
     optTenisMeja.disabled = true;
-    optTenisMeja.innerText = "Tenis Meja (PENDAFTARAN TUTUP)";
+    optTenisMeja.innerText = "Tenis Meja (PENDAFTARAN TELAH DITUTUP)";
 
-    // Pengecekan Batas Badminton berdasarkan Gender yang dipilih
+    // Pengecekan Batas Badminton berdasarkan Gender yang dipilih di Form
     let isCurrentGenderFull = false;
     if (selectJenisKelamin.value === "Perempuan") {
         isCurrentGenderFull = isBadmintonWanitaFull;
         if (isBadmintonWanitaFull) {
             optBadminton.disabled = true;
-            optBadminton.innerText = "Badminton Wanita (KUOTA PENUH)";
+            optBadminton.innerText = "Badminton Wanita (PENDAFTARAN TELAH DITUTUP)";
+            optBadminton.classList.add("blink-text");
         } else {
             optBadminton.disabled = false;
             optBadminton.innerText = `Badminton Wanita (Kuota ${MAX_BADMINTON_WANITA})`;
+            optBadminton.classList.remove("blink-text");
         }
     } else {
         isCurrentGenderFull = isBadmintonPriaFull;
         if (isBadmintonPriaFull) {
             optBadminton.disabled = true;
-            optBadminton.innerText = "Badminton Pria (KUOTA PENUH)";
+            optBadminton.innerText = "Badminton Pria (PENDAFTARAN TELAH DITUTUP)";
+            optBadminton.classList.add("blink-text");
         } else {
             optBadminton.disabled = false;
             optBadminton.innerText = `Badminton Pria (Kuota ${MAX_BADMINTON_PRIA})`;
+            optBadminton.classList.remove("blink-text");
         }
     }
 
@@ -979,7 +1015,8 @@ function generateDynamicBrackets() {
 
     buildBracket(gandaPutra, "badmintonPutraContainer", "select-badminton-putra", "date-badminton-putra", "Badminton Ganda Putra", true);
     buildBracket(gandaPutri, "badmintonPutriContainer", "select-badminton-putri", "date-badminton-putri", "Badminton Ganda Putri", true);
-    buildBracket(tenisPlayers, "tenisContainer", "select-tenis", "date-tenis", "Tenis Meja", false);
+    
+    buildTenisBracket18(tenisPlayers);
 
     document.querySelectorAll(".slot-select").forEach(select => {
         select.removeEventListener("change", updateProgressPieCharts);
@@ -987,6 +1024,116 @@ function generateDynamicBrackets() {
     });
 
     updateProgressPieCharts();
+}
+
+function buildTenisBracket18(players) {
+    const container = document.getElementById("tenisContainer");
+    if (!container) return;
+
+    const savedSelections = [];
+    const savedDates = [];
+    container.querySelectorAll(".select-tenis").forEach((select, idx) => {
+        savedSelections[idx] = select.value;
+    });
+    container.querySelectorAll(".date-tenis").forEach((inputDate, idx) => {
+        savedDates[idx] = inputDate.value;
+    });
+
+    container.innerHTML = "";
+
+    const round1Structure = [
+        { label: "Match 1 (No 1 vs 2)", slotA: "Peserta 1", slotB: "Peserta 2" },
+        { label: "Slot Khusus (No 3 - BYE)", slotA: "Peserta 3 (Menunggu M1)", slotB: "BYE / Otomatis Lolos" },
+        { label: "Match 2 (No 4 vs 5)", slotA: "Peserta 4", slotB: "Peserta 5" },
+        { label: "Match 3 (No 6 vs 7)", slotA: "Peserta 6", slotB: "Peserta 7" },
+        { label: "Match 4 (No 8 vs 9)", slotA: "Peserta 8", slotB: "Peserta 9" },
+        { label: "Match 5 (No 10 vs 11)", slotA: "Peserta 10", slotB: "Peserta 11" },
+        { label: "Slot Khusus (No 12 - BYE)", slotA: "Peserta 12 (Menunggu M5)", slotB: "BYE / Otomatis Lolos" },
+        { label: "Match 6 (No 13 vs 14)", slotA: "Peserta 13", slotB: "Peserta 14" },
+        { label: "Match 7 (No 15 vs 16)", slotA: "Peserta 15", slotB: "Peserta 16" },
+        { label: "Match 8 (No 17 vs 18)", slotA: "Peserta 17", slotB: "Peserta 18" }
+    ];
+
+    let html = `
+        <div class="bracket-round">
+            <div class="bracket-round-title">Babak Pendahuluan / 18 Besar</div>`;
+    
+    round1Structure.forEach((m) => {
+        html += `
+            <div class="matchup">
+                <div class="mb-1">
+                    <span class="slot-title"><i class="fa-regular fa-calendar-days me-1"></i>${m.label}</span>
+                    <input type="datetime-local" class="form-control slot-date date-tenis">
+                </div>
+                <div class="slot-title">${m.slotA}</div>
+                <select class="form-select slot-select mb-1 select-tenis"></select>
+                <div class="slot-title">${m.slotB}</div>
+                <select class="form-select slot-select select-tenis"></select>
+            </div>`;
+    });
+
+    html += `</div>`;
+
+    html += `
+        <div class="bracket-round">
+            <div class="bracket-round-title">Perempat Final (8 Besar)</div>`;
+    for(let i=1; i<=4; i++){
+        html += `
+            <div class="matchup">
+                <div class="mb-1">
+                    <span class="slot-title"><i class="fa-regular fa-calendar-days me-1"></i>QF Match ${i}:</span>
+                    <input type="datetime-local" class="form-control slot-date date-tenis">
+                </div>
+                <div class="slot-title">Pemain A</div>
+                <select class="form-select slot-select mb-1 select-tenis"></select>
+                <div class="slot-title">Pemain B</div>
+                <select class="form-select slot-select select-tenis"></select>
+            </div>`;
+    }
+    html += `</div>`;
+
+    html += `
+        <div class="bracket-round">
+            <div class="bracket-round-title">Semi Final</div>`;
+    for(let i=1; i<=2; i++){
+        html += `
+            <div class="matchup">
+                <div class="mb-1">
+                    <span class="slot-title"><i class="fa-regular fa-calendar-days me-1"></i>SF Match ${i}:</span>
+                    <input type="datetime-local" class="form-control slot-date date-tenis">
+                </div>
+                <div class="slot-title">Pemain A</div>
+                <select class="form-select slot-select mb-1 select-tenis"></select>
+                <div class="slot-title">Pemain B</div>
+                <select class="form-select slot-select select-tenis"></select>
+            </div>`;
+    }
+    html += `</div>`;
+
+    html += `
+        <div class="bracket-round">
+            <div class="bracket-round-title">Final & Juara</div>
+            <div class="matchup">
+                <div class="mb-1">
+                    <span class="slot-title"><i class="fa-regular fa-calendar-days me-1"></i>Match Final:</span>
+                    <input type="datetime-local" class="form-control slot-date date-tenis">
+                </div>
+                <div class="slot-title">Finalis A</div>
+                <select class="form-select slot-select mb-1 select-tenis"></select>
+                <div class="slot-title">Finalis B</div>
+                <select class="form-select slot-select select-tenis"></select>
+            </div>
+            <div class="matchup text-center p-2 bg-warning text-dark fw-bold mt-3">
+                <i class="fa-solid fa-trophy trophy-icon d-block text-dark"></i>
+                <div class="slot-title text-dark">Juara 1 Tenis Meja</div>
+                <select class="form-select slot-select select-tenis"></select>
+            </div>
+        </div>`;
+
+    container.innerHTML = html;
+
+    fillSelectOptions(".select-tenis", players, savedSelections);
+    restoreInputDates(".date-tenis", savedDates);
 }
 
 function buildBracket(players, containerId, selectClass, dateClass, sportName, isDoubles = false) {
