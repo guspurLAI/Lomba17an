@@ -67,9 +67,20 @@
         .form-card, .table-card, .bracket-card { border: none; border-radius: 15px; }
         footer { background: #b71c1c; color: white; padding: 15px; margin-top: 40px; }
 
-        /* =========================================================
-           STYLING BAGAN TURNAMEN RESPONSIVE & PROPORSIONAL
-           ========================================================= */
+        /* Countdown Box Styling */
+        .countdown-box {
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* Styling Kontainer Grafik Lebih Besar */
+        .chart-bar-container {
+            position: relative;
+            width: 100%;
+            height: 420px;
+        }
+
+        /* Styling Bagan Turnamen */
         .bracket-container {
             display: flex;
             justify-content: flex-start;
@@ -118,7 +129,6 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.12);
         }
 
-        /* Garis Keluar ke Kanan */
         .bracket-round:not(:last-child) .matchup::after {
             content: "";
             position: absolute;
@@ -129,7 +139,6 @@
             background-color: #0d6efd;
         }
 
-        /* Garis Masuk dari Kiri */
         .bracket-round:nth-child(n+2) .matchup::before {
             content: "";
             position: absolute;
@@ -140,7 +149,6 @@
             background-color: #0d6efd;
         }
 
-        /* Garis Vertikal Penghubung Dua Matchup */
         .bracket-round:not(:last-child) .matchup:nth-child(even)::after {
             height: calc(100% + 18px);
             top: auto;
@@ -187,7 +195,6 @@
             position: relative;
         }
 
-        /* Pop-up Styles for the Poster */
         .poster-popup {
             display: none; 
             position: fixed; 
@@ -248,6 +255,36 @@
     <div class="poster-popup-content">
         <span class="poster-popup-close">&times;</span>
         <img src="poster-turnamen.jpeg" alt="Poster Jadwal dan Aturan Turnamen" class="poster-image">
+    </div>
+</div>
+
+<!-- POP-UP MODAL TERIMA KASIH & SELAMAT BERTANDING -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center border-0 shadow-lg">
+            <div class="modal-header bg-success text-white justify-content-center position-relative">
+                <h5 class="modal-title fw-bold" id="successModalLabel">
+                    <i class="fa-solid fa-circle-check me-2"></i>Pendaftaran Berhasil!
+                </h5>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <i class="fa-solid fa-trophy text-warning fa-4x mb-3 animated bounce"></i>
+                <h3 class="fw-bold text-success mb-2">Terima Kasih!</h3>
+                <p class="fs-5 text-dark mb-3">
+                    Halo <strong id="registeredName" class="text-danger"></strong>, pendaftaran Anda telah berhasil diproses.
+                </p>
+                <div class="alert alert-light border text-muted small">
+                    <i class="fa-solid fa-fire me-1 text-danger"></i>
+                    <strong>Selamat bertanding!</strong> Junjung tinggi nilai sportivitas dan kebersamaan dalam Semarak Perayaan HUT RI Ke-81 LAI!
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center border-0 pt-0 pb-4">
+                <button type="button" class="btn btn-success px-4 fw-bold" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-thumbs-up me-1"></i> Siap, Terima Kasih!
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -339,14 +376,39 @@
 
         <div class="row mt-4">
             <div class="col-lg-6">
-                <div class="card form-card shadow">
+                <div class="card form-card shadow h-100">
                     <div class="card-header bg-danger text-white">
                         <b><i class="fa-solid fa-user-plus me-1"></i> Form Pendaftaran</b>
                     </div>
                     <div class="card-body">
-                        <!-- Banner Peringatan Batas Pendaftaran -->
-                        <div id="deadlineAlert" class="alert alert-warning py-2 mb-3 small" role="alert">
-                            <i class="fa-solid fa-clock me-1"></i> Batas Akhir Pendaftaran: <strong>13 Agustus 2026 pukul 23:59 WIB</strong>
+                        
+                        <!-- Banner Warning & Countdown Timer -->
+                        <div id="deadlineAlert" class="alert alert-warning mb-3 small" role="alert">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span><i class="fa-solid fa-triangle-exclamation me-1"></i> <strong>Sisa Waktu Pendaftaran:</strong></span>
+                            </div>
+                            <div class="text-center bg-dark text-white p-2 rounded fw-bold countdown-box my-2" id="countdownTimer">
+                                Memuat hitung mundur...
+                            </div>
+                            <div class="text-muted text-center" style="font-size: 0.8rem;">
+                                Batas Akhir: <strong>13 Agustus 2026 pukul 23:59 WIB</strong>
+                            </div>
+                        </div>
+
+                        <!-- Status Batas Kuota Cabor -->
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="p-2 border rounded text-center bg-light">
+                                    <small class="d-block text-muted">Badminton (Max 32)</small>
+                                    <strong id="quotaBadmintonText" class="text-primary">0 / 32 Peserta</strong>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2 border rounded text-center bg-light">
+                                    <small class="d-block text-muted">Tenis Meja (Max 24)</small>
+                                    <strong id="quotaTenisText" class="text-warning">0 / 24 Peserta</strong>
+                                </div>
+                            </div>
                         </div>
 
                         <form id="registrationForm">
@@ -372,8 +434,8 @@
                             <div class="mb-3">
                                 <label for="cabangLomba" class="form-label">Cabang Lomba</label>
                                 <select id="cabangLomba" class="form-select">
-                                    <option value="Badminton">Badminton</option>
-                                    <option value="Tenis Meja (Khusus Pria)" id="optTenisMeja">Tenis Meja (Khusus Pria)</option>
+                                    <option value="Badminton" id="optBadminton">Badminton (Kuota 32)</option>
+                                    <option value="Tenis Meja (Khusus Pria)" id="optTenisMeja">Tenis Meja - Khusus Pria (Kuota 24)</option>
                                 </select>
                             </div>
                             <button type="submit" id="submitBtn" class="btn btn-danger w-100">
@@ -384,13 +446,14 @@
                 </div>
             </div>
 
+            <!-- Grafik Peserta per Lomba -->
             <div class="col-lg-6 mt-4 mt-lg-0">
                 <div class="card shadow h-100">
                     <div class="card-header bg-primary text-white">
                         <b><i class="fa-solid fa-chart-column me-1"></i> Grafik Peserta per Lomba</b>
                     </div>
-                    <div class="card-body d-flex align-items-center">
-                        <div class="w-100">
+                    <div class="card-body d-flex align-items-center justify-content-center p-3">
+                        <div class="chart-bar-container">
                             <canvas id="chartPeserta"></canvas>
                         </div>
                     </div>
@@ -528,12 +591,14 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbyPIlq0w5VHgPu9sFLQIt3ZG79DEunKS3UMqqcV6Eam47s6TFCglmWYWFwy9xJKqGlAag/exec";
 const PASSWORD_BAGAN = "admin123"; 
 
-// Batas Akhir Pendaftaran: 13 Agustus 2026 Pukul 23:59 WIB
+const MAX_BADMINTON = 32;
+const MAX_TENIS = 24; // Batas kuota Tenis Meja diubah menjadi 24 orang
 const DEADLINE_PENDAFTARAN = new Date("2026-08-13T23:59:00+07:00");
 
 let isBaganUnlocked = false;
@@ -544,64 +609,99 @@ let chartProgressBadminton, chartProgressTenis;
 const form = document.getElementById("registrationForm");
 const submitBtn = document.getElementById("submitBtn");
 const deadlineAlert = document.getElementById("deadlineAlert");
+const countdownTimer = document.getElementById("countdownTimer");
 const tableBody = document.getElementById("tableBody");
 const searchInput = document.getElementById("searchInput");
 const selectJenisKelamin = document.getElementById("jenisKelamin");
 const selectCabangLomba = document.getElementById("cabangLomba");
+const optBadminton = document.getElementById("optBadminton");
 const optTenisMeja = document.getElementById("optTenisMeja");
 
-// Get navigation elements
 const pendaftaranDiv = document.getElementById("portal-pendaftaran");
 const baganDiv = document.getElementById("portal-bagan");
 const navPendaftaran = document.getElementById("nav-pendaftaran");
 const navJadwal = document.getElementById("nav-jadwal");
 const navBagan = document.getElementById("nav-bagan");
 
-// Get pop-up elements
 const posterPopup = document.getElementById("posterPopup");
 const posterPopupClose = document.querySelector(".poster-popup-close");
 
-// Function to show the poster pop-up
-function showPosterPopup() {
-    posterPopup.style.display = "block";
-}
+function showPosterPopup() { posterPopup.style.display = "block"; }
+function hidePosterPopup() { posterPopup.style.display = "none"; }
 
-// Function to hide the poster pop-up
-function hidePosterPopup() {
-    posterPopup.style.display = "none";
-}
-
-// Event listener for closing the pop-up
 posterPopupClose.addEventListener("click", hidePosterPopup);
-
-// Close pop-up when clicking outside the content
 window.addEventListener("click", function(event) {
-    if (event.target === posterPopup) {
-        hidePosterPopup();
-    }
+    if (event.target === posterPopup) hidePosterPopup();
 });
 
-function checkRegistrationDeadline() {
+function checkRegistrationLimitsAndDeadline() {
     const now = new Date();
-    if (now > DEADLINE_PENDAFTARAN) {
-        // Pendaftaran Ditutup
+    const distance = DEADLINE_PENDAFTARAN - now;
+
+    const countBadminton = pesertaData.filter(p => p.cabangLomba === "Badminton").length;
+    const countTenis = pesertaData.filter(p => p.cabangLomba === "Tenis Meja (Khusus Pria)").length;
+
+    document.getElementById("quotaBadmintonText").innerText = `${countBadminton} / ${MAX_BADMINTON} Peserta`;
+    document.getElementById("quotaTenisText").innerText = `${countTenis} / ${MAX_TENIS} Peserta`;
+
+    const isBadmintonFull = countBadminton >= MAX_BADMINTON;
+    const isTenisFull = countTenis >= MAX_TENIS;
+
+    optBadminton.disabled = isBadmintonFull;
+    if (isBadmintonFull) optBadminton.innerText = "Badminton (KUOTA PENUH)";
+    else optBadminton.innerText = `Badminton (Kuota ${MAX_BADMINTON})`;
+
+    if (selectJenisKelamin.value === "Perempuan") {
+        optTenisMeja.disabled = true;
+    } else {
+        optTenisMeja.disabled = isTenisFull;
+        if (isTenisFull) optTenisMeja.innerText = "Tenis Meja - Khusus Pria (KUOTA PENUH)";
+        else optTenisMeja.innerText = `Tenis Meja - Khusus Pria (Kuota ${MAX_TENIS})`;
+    }
+
+    if (selectCabangLomba.value === "Badminton" && isBadmintonFull && !isTenisFull && selectJenisKelamin.value !== "Perempuan") {
+        selectCabangLomba.value = "Tenis Meja (Khusus Pria)";
+    } else if (selectCabangLomba.value === "Tenis Meja (Khusus Pria)" && isTenisFull && !isBadmintonFull) {
+        selectCabangLomba.value = "Badminton";
+    }
+
+    if (distance < 0) {
         submitBtn.disabled = true;
         submitBtn.className = "btn btn-secondary w-100";
         submitBtn.innerHTML = '<i class="fa-solid fa-lock me-1"></i> Pendaftaran Sudah Ditutup';
 
-        // Disable semua field input pada form
         const formInputs = form.querySelectorAll("input, select");
         formInputs.forEach(input => input.disabled = true);
 
-        // Update tampilan alert banner
-        deadlineAlert.className = "alert alert-danger py-2 mb-3 small fw-bold text-center";
-        deadlineAlert.innerHTML = '<i class="fa-solid fa-circle-xmark me-1"></i> Pendaftaran telah ditutup pada 13 Agustus 2026 pukul 23:59 WIB.';
-        
-        return true; // Ditutup
+        deadlineAlert.className = "alert alert-danger mb-3 small";
+        countdownTimer.className = "text-center bg-danger text-white p-2 rounded fw-bold countdown-box my-2";
+        countdownTimer.innerHTML = '<i class="fa-solid fa-circle-xmark me-1"></i> WAKTU PENDAFTARAN TELAH HABIS';
+        return true; 
+    } else if (isBadmintonFull && isTenisFull) {
+        submitBtn.disabled = true;
+        submitBtn.className = "btn btn-secondary w-100";
+        submitBtn.innerHTML = '<i class="fa-solid fa-ban me-1"></i> Kuota Seluruh Lomba Penuh';
+
+        deadlineAlert.className = "alert alert-danger mb-3 small";
+        countdownTimer.className = "text-center bg-danger text-white p-2 rounded fw-bold countdown-box my-2";
+        countdownTimer.innerHTML = '<i class="fa-solid fa-circle-exclamation me-1"></i> SEMUA KUOTA PESERTA TELAH TERPENUHI';
+        return true;
     } else {
-        deadlineAlert.className = "alert alert-warning py-2 mb-3 small";
-        deadlineAlert.innerHTML = '<i class="fa-solid fa-clock me-1"></i> Batas Akhir Pendaftaran: <strong>13 Agustus 2026 pukul 23:59 WIB</strong>';
-        return false; // Masih buka
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        countdownTimer.innerHTML = `<i class="fa-solid fa-stopwatch me-1"></i> ${days} Hari : ${hours} Jam : ${minutes} Menit : ${seconds} Detik`;
+
+        if (days === 0 && hours < 24) {
+            deadlineAlert.className = "alert alert-danger mb-3 small";
+            countdownTimer.className = "text-center bg-danger text-white p-2 rounded fw-bold countdown-box my-2";
+        } else {
+            deadlineAlert.className = "alert alert-warning mb-3 small";
+            countdownTimer.className = "text-center bg-dark text-white p-2 rounded fw-bold countdown-box my-2";
+        }
+        return false;
     }
 }
 
@@ -644,29 +744,34 @@ function updateClock() {
 
     document.getElementById('realtimeClock').innerText = `${tanggal} | ${jam}:${menit}:${detik} WIB`;
 
-    // Selalu cek status deadline pendaftaran
-    checkRegistrationDeadline();
+    checkRegistrationLimitsAndDeadline();
 }
 setInterval(updateClock, 1000);
-updateClock();
 
 selectJenisKelamin.addEventListener("change", function() {
-    if (this.value === "Perempuan") {
-        optTenisMeja.disabled = true;
-        if (selectCabangLomba.value === "Tenis Meja (Khusus Pria)") {
-            selectCabangLomba.value = "Badminton";
-        }
-    } else {
-        optTenisMeja.disabled = false;
-    }
+    checkRegistrationLimitsAndDeadline();
 });
 
+// EVENT FORM SUBMIT DENGAN POP-UP BOOTSTRAP SUKSES
 form.addEventListener("submit", async function(e) {
     e.preventDefault();
 
-    // Validasi penutupan pendaftaran sebelum submit
-    if (checkRegistrationDeadline()) {
-        alert("Mohon maaf, pendaftaran telah resmi ditutup pada 13 Agustus 2026 pukul 23.59 WIB dan tidak dapat menerima data baru.");
+    const selectedCabor = selectCabangLomba.value;
+    const inputNama = document.getElementById("nama").value.trim();
+    const countBadminton = pesertaData.filter(p => p.cabangLomba === "Badminton").length;
+    const countTenis = pesertaData.filter(p => p.cabangLomba === "Tenis Meja (Khusus Pria)").length;
+
+    if (selectedCabor === "Badminton" && countBadminton >= MAX_BADMINTON) {
+        alert("Mohon maaf, kuota pendaftaran Badminton (32 peserta) sudah terpenuhi.");
+        return;
+    }
+    if (selectedCabor === "Tenis Meja (Khusus Pria)" && countTenis >= MAX_TENIS) {
+        alert("Mohon maaf, kuota pendaftaran Tenis Meja (24 peserta) sudah terpenuhi.");
+        return;
+    }
+
+    if (checkRegistrationLimitsAndDeadline()) {
+        alert("Mohon maaf, pendaftaran telah resmi ditutup atau kuota pendaftaran telah penuh.");
         return;
     }
 
@@ -674,13 +779,13 @@ form.addEventListener("submit", async function(e) {
     
     const payload = {
         action: "register",
-        nama: document.getElementById("nama").value.trim(),
+        nama: inputNama,
         telepon: noTelepon,
         nik: noTelepon, 
         bagian: document.getElementById("bagian").value.trim(),
         departemen: document.getElementById("bagian").value.trim(),
         jenisKelamin: selectJenisKelamin.value,
-        cabangLomba: selectCabangLomba.value
+        cabangLomba: selectedCabor
     };
 
     if (!payload.nama || !payload.telepon || !payload.bagian) {
@@ -700,9 +805,12 @@ form.addEventListener("submit", async function(e) {
         const result = await response.json();
 
         if (result.success) {
-            alert("Pendaftaran berhasil disimpan!");
+            // Tampilkan Pop-Up Modal Sukses "Terima Kasih & Selamat Bertanding"
+            document.getElementById("registeredName").innerText = inputNama;
+            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
+
             form.reset();
-            optTenisMeja.disabled = false;
             loadData();
         } else {
             alert(result.message || "Pendaftaran gagal.");
@@ -710,7 +818,7 @@ form.addEventListener("submit", async function(e) {
     } catch (error) {
         alert("Terjadi kesalahan koneksi: " + error.message);
     } finally {
-        if (!checkRegistrationDeadline()) {
+        if (!checkRegistrationLimitsAndDeadline()) {
             submitBtn.disabled = false;
             submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Daftar';
         }
@@ -728,6 +836,7 @@ async function loadData() {
             renderTable(pesertaData);
             updateChart();
             generateDynamicBrackets();
+            checkRegistrationLimitsAndDeadline();
         }
     } catch (error) {
         console.error("Gagal mengambil data:", error);
@@ -766,26 +875,73 @@ function renderTable(data) {
 }
 
 function updateChart() {
-    const labels = ["Badminton", "Tenis Meja (Khusus Pria)"];
-    const values = labels.map(label => pesertaData.filter(p => p.cabangLomba === label).length);
+    const countBadminton = pesertaData.filter(p => p.cabangLomba === "Badminton").length;
+    const countTenis = pesertaData.filter(p => p.cabangLomba === "Tenis Meja (Khusus Pria)").length;
+
+    const labels = ["Badminton (Max 32)", "Tenis Meja (Max 24)"];
+    const values = [countBadminton, countTenis];
 
     if (chartPeserta) chartPeserta.destroy();
 
     const ctx = document.getElementById("chartPeserta").getContext("2d");
+    
     chartPeserta = new Chart(ctx, {
         type: "bar",
+        plugins: [ChartDataLabels],
         data: {
             labels: labels,
             datasets: [{
-                label: "Jumlah Peserta",
+                label: "Jumlah Peserta Terdaftar",
                 data: values,
-                backgroundColor: ["#1976d2", "#ff9800"]
+                backgroundColor: ["#1976d2", "#ff9800"],
+                borderRadius: 8,
+                barThickness: 65
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+            layout: {
+                padding: {
+                    top: 35,
+                    bottom: 10
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                datalabels: {
+                    anchor: 'end',
+                    align: 'top',
+                    formatter: function(value) {
+                        return value + " Peserta";
+                    },
+                    font: {
+                        weight: 'bold',
+                        size: 15
+                    },
+                    color: '#222222'
+                }
+            },
+            scales: { 
+                x: {
+                    ticks: {
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    }
+                },
+                y: { 
+                    beginAtZero: true, 
+                    ticks: { 
+                        stepSize: 5,
+                        font: {
+                            size: 12
+                        }
+                    },
+                    suggestedMax: Math.max(...values, 10) + 8
+                } 
+            }
         }
     });
 }
@@ -794,11 +950,9 @@ function generateDynamicBrackets() {
     const badmintonPlayers = pesertaData.filter(p => p.cabangLomba === "Badminton");
     const tenisPlayers = pesertaData.filter(p => p.cabangLomba === "Tenis Meja (Khusus Pria)");
 
-    // Badminton dipisahkan menjadi Ganda Putra dan Ganda Putri
     const gandaPutra = badmintonPlayers.filter(p => p.jenisKelamin === "Laki-laki");
     const gandaPutri = badmintonPlayers.filter(p => p.jenisKelamin === "Perempuan");
 
-    // Menampilkan bagan ganda (dua peserta per tim) untuk Badminton, dan tunggal untuk Tenis Meja
     buildBracket(gandaPutra, "badmintonPutraContainer", "select-badminton-putra", "date-badminton-putra", "Badminton Ganda Putra", true);
     buildBracket(gandaPutri, "badmintonPutriContainer", "select-badminton-putri", "date-badminton-putri", "Badminton Ganda Putri", true);
     buildBracket(tenisPlayers, "tenisContainer", "select-tenis", "date-tenis", "Tenis Meja", false);
@@ -868,7 +1022,6 @@ function buildBracket(players, containerId, selectClass, dateClass, sportName, i
             matchDiv.className = "matchup";
 
             if (isDoubles) {
-                // Tampilan untuk Ganda (Badminton): Tim A (Peserta 1 & 2) vs Tim B (Peserta 1 & 2)
                 matchDiv.innerHTML = `
                     <div class="mb-1">
                         <span class="slot-title"><i class="fa-regular fa-calendar-days me-1"></i>Match ${i}:</span>
@@ -888,7 +1041,6 @@ function buildBracket(players, containerId, selectClass, dateClass, sportName, i
                     </div>
                 `;
             } else {
-                // Tampilan untuk Tunggal (Tenis Meja)
                 matchDiv.innerHTML = `
                     <div class="mb-1">
                         <span class="slot-title"><i class="fa-regular fa-calendar-days me-1"></i>Match ${i}:</span>
@@ -919,7 +1071,7 @@ function buildBracket(players, containerId, selectClass, dateClass, sportName, i
                 winnerDiv.innerHTML = `
                     <i class="fa-solid fa-trophy trophy-icon d-block text-dark"></i>
                     <div class="slot-title text-dark">Juara 1 ${sportName}</div>
-                    <select class="form-select slot-select ${selectClass}"></select>
+                    <select class="form-select slot-select mb-1 ${selectClass}"></select>
                 `;
             }
 
@@ -1026,7 +1178,8 @@ function renderSinglePieChart(canvasId, existingChart, setChartRef, filled, empt
                             return ` ${context.label}: ${context.raw} slot`;
                         }
                     }
-                }
+                },
+                datalabels: { display: false }
             }
         }
     });
@@ -1055,7 +1208,7 @@ function escapeHtml(value) {
 
 document.addEventListener("DOMContentLoaded", function() {
     loadData();
-    checkRegistrationDeadline();
+    updateClock();
 });
 </script>
 
