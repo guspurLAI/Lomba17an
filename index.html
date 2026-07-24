@@ -344,6 +344,11 @@
                         <b><i class="fa-solid fa-user-plus me-1"></i> Form Pendaftaran</b>
                     </div>
                     <div class="card-body">
+                        <!-- Banner Peringatan Batas Pendaftaran -->
+                        <div id="deadlineAlert" class="alert alert-warning py-2 mb-3 small" role="alert">
+                            <i class="fa-solid fa-clock me-1"></i> Batas Akhir Pendaftaran: <strong>13 Agustus 2026 pukul 23:59 WIB</strong>
+                        </div>
+
                         <form id="registrationForm">
                             <div class="mb-3">
                                 <label for="nama" class="form-label">Nama Peserta</label>
@@ -371,7 +376,7 @@
                                     <option value="Tenis Meja (Khusus Pria)" id="optTenisMeja">Tenis Meja (Khusus Pria)</option>
                                 </select>
                             </div>
-                            <button type="submit" class="btn btn-danger w-100">
+                            <button type="submit" id="submitBtn" class="btn btn-danger w-100">
                                 <i class="fa-solid fa-paper-plane"></i> Daftar
                             </button>
                         </form>
@@ -527,12 +532,18 @@
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbyPIlq0w5VHgPu9sFLQIt3ZG79DEunKS3UMqqcV6Eam47s6TFCglmWYWFwy9xJKqGlAag/exec";
 const PASSWORD_BAGAN = "admin123"; 
+
+// Batas Akhir Pendaftaran: 13 Agustus 2026 Pukul 23:59 WIB
+const DEADLINE_PENDAFTARAN = new Date("2026-08-13T23:59:00+07:00");
+
 let isBaganUnlocked = false;
 let pesertaData = [];
 let chartPeserta;
 let chartProgressBadminton, chartProgressTenis;
 
 const form = document.getElementById("registrationForm");
+const submitBtn = document.getElementById("submitBtn");
+const deadlineAlert = document.getElementById("deadlineAlert");
 const tableBody = document.getElementById("tableBody");
 const searchInput = document.getElementById("searchInput");
 const selectJenisKelamin = document.getElementById("jenisKelamin");
@@ -569,6 +580,30 @@ window.addEventListener("click", function(event) {
         hidePosterPopup();
     }
 });
+
+function checkRegistrationDeadline() {
+    const now = new Date();
+    if (now > DEADLINE_PENDAFTARAN) {
+        // Pendaftaran Ditutup
+        submitBtn.disabled = true;
+        submitBtn.className = "btn btn-secondary w-100";
+        submitBtn.innerHTML = '<i class="fa-solid fa-lock me-1"></i> Pendaftaran Sudah Ditutup';
+
+        // Disable semua field input pada form
+        const formInputs = form.querySelectorAll("input, select");
+        formInputs.forEach(input => input.disabled = true);
+
+        // Update tampilan alert banner
+        deadlineAlert.className = "alert alert-danger py-2 mb-3 small fw-bold text-center";
+        deadlineAlert.innerHTML = '<i class="fa-solid fa-circle-xmark me-1"></i> Pendaftaran telah ditutup pada 13 Agustus 2026 pukul 23:59 WIB.';
+        
+        return true; // Ditutup
+    } else {
+        deadlineAlert.className = "alert alert-warning py-2 mb-3 small";
+        deadlineAlert.innerHTML = '<i class="fa-solid fa-clock me-1"></i> Batas Akhir Pendaftaran: <strong>13 Agustus 2026 pukul 23:59 WIB</strong>';
+        return false; // Masih buka
+    }
+}
 
 function switchPortal(target) {
     pendaftaranDiv.style.display = "none";
@@ -608,6 +643,9 @@ function updateClock() {
     const detik = String(now.getSeconds()).padStart(2, '0');
 
     document.getElementById('realtimeClock').innerText = `${tanggal} | ${jam}:${menit}:${detik} WIB`;
+
+    // Selalu cek status deadline pendaftaran
+    checkRegistrationDeadline();
 }
 setInterval(updateClock, 1000);
 updateClock();
@@ -625,7 +663,13 @@ selectJenisKelamin.addEventListener("change", function() {
 
 form.addEventListener("submit", async function(e) {
     e.preventDefault();
-    const submitBtn = form.querySelector("button[type='submit']");
+
+    // Validasi penutupan pendaftaran sebelum submit
+    if (checkRegistrationDeadline()) {
+        alert("Mohon maaf, pendaftaran telah resmi ditutup pada 13 Agustus 2026 pukul 23.59 WIB dan tidak dapat menerima data baru.");
+        return;
+    }
+
     const noTelepon = document.getElementById("telepon").value.trim();
     
     const payload = {
@@ -666,8 +710,10 @@ form.addEventListener("submit", async function(e) {
     } catch (error) {
         alert("Terjadi kesalahan koneksi: " + error.message);
     } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Daftar';
+        if (!checkRegistrationDeadline()) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Daftar';
+        }
     }
 });
 
@@ -1007,7 +1053,10 @@ function escapeHtml(value) {
         .replace(/'/g, "&#039;");
 }
 
-document.addEventListener("DOMContentLoaded", loadData);
+document.addEventListener("DOMContentLoaded", function() {
+    loadData();
+    checkRegistrationDeadline();
+});
 </script>
 
 </body>
