@@ -397,16 +397,22 @@
 
                         <!-- Status Batas Kuota Cabor -->
                         <div class="row g-2 mb-3">
-                            <div class="col-6">
+                            <div class="col-4">
                                 <div class="p-2 border rounded text-center bg-light">
-                                    <small class="d-block text-muted">Badminton (Max 32)</small>
-                                    <strong id="quotaBadmintonText" class="text-primary">0 / 32 Peserta</strong>
+                                    <small class="d-block text-muted" style="font-size: 0.75rem;">Badminton Pria</small>
+                                    <strong id="quotaBadmintonPriaText" class="text-primary small">0 / 32 Peserta</strong>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div class="col-4">
                                 <div class="p-2 border rounded text-center bg-light">
-                                    <small class="d-block text-muted">Tenis Meja (Max 24)</small>
-                                    <strong id="quotaTenisText" class="text-warning">0 / 24 Peserta</strong>
+                                    <small class="d-block text-muted" style="font-size: 0.75rem;">Badminton Wanita</small>
+                                    <strong id="quotaBadmintonWanitaText" class="text-success small">0 / 8 Peserta</strong>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-2 border rounded text-center bg-light">
+                                    <small class="d-block text-muted" style="font-size: 0.75rem;">Tenis Meja</small>
+                                    <strong id="quotaTenisText" class="text-danger small">TUTUP</strong>
                                 </div>
                             </div>
                         </div>
@@ -434,8 +440,8 @@
                             <div class="mb-3">
                                 <label for="cabangLomba" class="form-label">Cabang Lomba</label>
                                 <select id="cabangLomba" class="form-select">
-                                    <option value="Badminton" id="optBadminton">Badminton (Kuota 32)</option>
-                                    <option value="Tenis Meja (Khusus Pria)" id="optTenisMeja">Tenis Meja - Khusus Pria (Kuota 24)</option>
+                                    <option value="Badminton" id="optBadminton">Badminton</option>
+                                    <option value="Tenis Meja (Khusus Pria)" id="optTenisMeja" disabled>Tenis Meja (TUTUP)</option>
                                 </select>
                             </div>
                             <button type="submit" id="submitBtn" class="btn btn-danger w-100">
@@ -597,8 +603,8 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbyPIlq0w5VHgPu9sFLQIt3ZG79DEunKS3UMqqcV6Eam47s6TFCglmWYWFwy9xJKqGlAag/exec";
 const PASSWORD_BAGAN = "admin123"; 
 
-const MAX_BADMINTON = 32;
-const MAX_TENIS = 24; // Batas kuota Tenis Meja diubah menjadi 24 orang
+const MAX_BADMINTON_PRIA = 32;   // Batas kuota Badminton Pria: 32 orang
+const MAX_BADMINTON_WANITA = 8;  // Batas kuota Badminton Wanita: 8 orang
 const DEADLINE_PENDAFTARAN = new Date("2026-08-13T23:59:00+07:00");
 
 let isBaganUnlocked = false;
@@ -638,32 +644,43 @@ function checkRegistrationLimitsAndDeadline() {
     const now = new Date();
     const distance = DEADLINE_PENDAFTARAN - now;
 
-    const countBadminton = pesertaData.filter(p => p.cabangLomba === "Badminton").length;
-    const countTenis = pesertaData.filter(p => p.cabangLomba === "Tenis Meja (Khusus Pria)").length;
+    // Hitung kuota peserta berdasarkan gender & cabor
+    const countBadmintonPria = pesertaData.filter(p => p.cabangLomba === "Badminton" && p.jenisKelamin === "Laki-laki").length;
+    const countBadmintonWanita = pesertaData.filter(p => p.cabangLomba === "Badminton" && p.jenisKelamin === "Perempuan").length;
 
-    document.getElementById("quotaBadmintonText").innerText = `${countBadminton} / ${MAX_BADMINTON} Peserta`;
-    document.getElementById("quotaTenisText").innerText = `${countTenis} / ${MAX_TENIS} Peserta`;
+    document.getElementById("quotaBadmintonPriaText").innerText = `${countBadmintonPria} / ${MAX_BADMINTON_PRIA} Peserta`;
+    document.getElementById("quotaBadmintonWanitaText").innerText = `${countBadmintonWanita} / ${MAX_BADMINTON_WANITA} Peserta`;
 
-    const isBadmintonFull = countBadminton >= MAX_BADMINTON;
-    const isTenisFull = countTenis >= MAX_TENIS;
+    const isBadmintonPriaFull = countBadmintonPria >= MAX_BADMINTON_PRIA;
+    const isBadmintonWanitaFull = countBadmintonWanita >= MAX_BADMINTON_WANITA;
 
-    optBadminton.disabled = isBadmintonFull;
-    if (isBadmintonFull) optBadminton.innerText = "Badminton (KUOTA PENUH)";
-    else optBadminton.innerText = `Badminton (Kuota ${MAX_BADMINTON})`;
+    // Tenis Meja Selalu TUTUP
+    optTenisMeja.disabled = true;
+    optTenisMeja.innerText = "Tenis Meja (PENDAFTARAN TUTUP)";
 
+    // Pengecekan Batas Badminton berdasarkan Gender yang dipilih
+    let isCurrentGenderFull = false;
     if (selectJenisKelamin.value === "Perempuan") {
-        optTenisMeja.disabled = true;
+        isCurrentGenderFull = isBadmintonWanitaFull;
+        if (isBadmintonWanitaFull) {
+            optBadminton.disabled = true;
+            optBadminton.innerText = "Badminton Wanita (KUOTA PENUH)";
+        } else {
+            optBadminton.disabled = false;
+            optBadminton.innerText = `Badminton Wanita (Kuota ${MAX_BADMINTON_WANITA})`;
+        }
     } else {
-        optTenisMeja.disabled = isTenisFull;
-        if (isTenisFull) optTenisMeja.innerText = "Tenis Meja - Khusus Pria (KUOTA PENUH)";
-        else optTenisMeja.innerText = `Tenis Meja - Khusus Pria (Kuota ${MAX_TENIS})`;
+        isCurrentGenderFull = isBadmintonPriaFull;
+        if (isBadmintonPriaFull) {
+            optBadminton.disabled = true;
+            optBadminton.innerText = "Badminton Pria (KUOTA PENUH)";
+        } else {
+            optBadminton.disabled = false;
+            optBadminton.innerText = `Badminton Pria (Kuota ${MAX_BADMINTON_PRIA})`;
+        }
     }
 
-    if (selectCabangLomba.value === "Badminton" && isBadmintonFull && !isTenisFull && selectJenisKelamin.value !== "Perempuan") {
-        selectCabangLomba.value = "Tenis Meja (Khusus Pria)";
-    } else if (selectCabangLomba.value === "Tenis Meja (Khusus Pria)" && isTenisFull && !isBadmintonFull) {
-        selectCabangLomba.value = "Badminton";
-    }
+    selectCabangLomba.value = "Badminton";
 
     if (distance < 0) {
         submitBtn.disabled = true;
@@ -677,16 +694,17 @@ function checkRegistrationLimitsAndDeadline() {
         countdownTimer.className = "text-center bg-danger text-white p-2 rounded fw-bold countdown-box my-2";
         countdownTimer.innerHTML = '<i class="fa-solid fa-circle-xmark me-1"></i> WAKTU PENDAFTARAN TELAH HABIS';
         return true; 
-    } else if (isBadmintonFull && isTenisFull) {
+    } else if (isCurrentGenderFull) {
         submitBtn.disabled = true;
         submitBtn.className = "btn btn-secondary w-100";
-        submitBtn.innerHTML = '<i class="fa-solid fa-ban me-1"></i> Kuota Seluruh Lomba Penuh';
+        submitBtn.innerHTML = `<i class="fa-solid fa-ban me-1"></i> Kuota Badminton (${selectJenisKelamin.value}) Penuh`;
 
-        deadlineAlert.className = "alert alert-danger mb-3 small";
-        countdownTimer.className = "text-center bg-danger text-white p-2 rounded fw-bold countdown-box my-2";
-        countdownTimer.innerHTML = '<i class="fa-solid fa-circle-exclamation me-1"></i> SEMUA KUOTA PESERTA TELAH TERPENUHI';
-        return true;
+        return false;
     } else {
+        submitBtn.disabled = false;
+        submitBtn.className = "btn btn-danger w-100";
+        submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Daftar';
+
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
         const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
@@ -752,21 +770,28 @@ selectJenisKelamin.addEventListener("change", function() {
     checkRegistrationLimitsAndDeadline();
 });
 
-// EVENT FORM SUBMIT DENGAN POP-UP BOOTSTRAP SUKSES
+// EVENT FORM SUBMIT
 form.addEventListener("submit", async function(e) {
     e.preventDefault();
 
     const selectedCabor = selectCabangLomba.value;
     const inputNama = document.getElementById("nama").value.trim();
-    const countBadminton = pesertaData.filter(p => p.cabangLomba === "Badminton").length;
-    const countTenis = pesertaData.filter(p => p.cabangLomba === "Tenis Meja (Khusus Pria)").length;
+    const selectedGender = selectJenisKelamin.value;
 
-    if (selectedCabor === "Badminton" && countBadminton >= MAX_BADMINTON) {
-        alert("Mohon maaf, kuota pendaftaran Badminton (32 peserta) sudah terpenuhi.");
+    if (selectedCabor === "Tenis Meja (Khusus Pria)") {
+        alert("Mohon maaf, pendaftaran Tenis Meja telah ditutup.");
         return;
     }
-    if (selectedCabor === "Tenis Meja (Khusus Pria)" && countTenis >= MAX_TENIS) {
-        alert("Mohon maaf, kuota pendaftaran Tenis Meja (24 peserta) sudah terpenuhi.");
+
+    const countBadmintonPria = pesertaData.filter(p => p.cabangLomba === "Badminton" && p.jenisKelamin === "Laki-laki").length;
+    const countBadmintonWanita = pesertaData.filter(p => p.cabangLomba === "Badminton" && p.jenisKelamin === "Perempuan").length;
+
+    if (selectedCabor === "Badminton" && selectedGender === "Laki-laki" && countBadmintonPria >= MAX_BADMINTON_PRIA) {
+        alert("Mohon maaf, kuota pendaftaran Badminton Pria (32 peserta) sudah terpenuhi.");
+        return;
+    }
+    if (selectedCabor === "Badminton" && selectedGender === "Perempuan" && countBadmintonWanita >= MAX_BADMINTON_WANITA) {
+        alert("Mohon maaf, kuota pendaftaran Badminton Wanita (8 peserta) sudah terpenuhi.");
         return;
     }
 
@@ -784,7 +809,7 @@ form.addEventListener("submit", async function(e) {
         nik: noTelepon, 
         bagian: document.getElementById("bagian").value.trim(),
         departemen: document.getElementById("bagian").value.trim(),
-        jenisKelamin: selectJenisKelamin.value,
+        jenisKelamin: selectedGender,
         cabangLomba: selectedCabor
     };
 
@@ -805,7 +830,6 @@ form.addEventListener("submit", async function(e) {
         const result = await response.json();
 
         if (result.success) {
-            // Tampilkan Pop-Up Modal Sukses "Terima Kasih & Selamat Bertanding"
             document.getElementById("registeredName").innerText = inputNama;
             const successModal = new bootstrap.Modal(document.getElementById('successModal'));
             successModal.show();
@@ -878,7 +902,7 @@ function updateChart() {
     const countBadminton = pesertaData.filter(p => p.cabangLomba === "Badminton").length;
     const countTenis = pesertaData.filter(p => p.cabangLomba === "Tenis Meja (Khusus Pria)").length;
 
-    const labels = ["Badminton (Max 32)", "Tenis Meja (Max 24)"];
+    const labels = ["Badminton", "Tenis Meja (Tutup)"];
     const values = [countBadminton, countTenis];
 
     if (chartPeserta) chartPeserta.destroy();
@@ -893,7 +917,7 @@ function updateChart() {
             datasets: [{
                 label: "Jumlah Peserta Terdaftar",
                 data: values,
-                backgroundColor: ["#1976d2", "#ff9800"],
+                backgroundColor: ["#1976d2", "#d32f2f"],
                 borderRadius: 8,
                 barThickness: 65
             }]
