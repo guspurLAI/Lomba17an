@@ -935,11 +935,14 @@ function renderTable(data) {
 }
 
 function updateChart() {
-    const countBadminton = pesertaData.filter(p => p.cabangLomba === "Badminton").length;
+    // Memisahkan data peserta Badminton berdasarkan jenis kelamin
+    const countBadmintonPria = pesertaData.filter(p => p.cabangLomba === "Badminton" && p.jenisKelamin === "Laki-laki").length;
+    const countBadmintonWanita = pesertaData.filter(p => p.cabangLomba === "Badminton" && p.jenisKelamin === "Perempuan").length;
     const countTenis = pesertaData.filter(p => p.cabangLomba === "Tenis Meja (Khusus Pria)").length;
 
-    const labels = ["Badminton", "Tenis Meja (Tutup)"];
-    const values = [countBadminton, countTenis];
+    // Label dan data dipisah untuk Pria dan Wanita
+    const labels = ["Badminton Pria", "Badminton Wanita", "Tenis Meja (Tutup)"];
+    const values = [countBadmintonPria, countBadmintonWanita, countTenis];
 
     if (chartPeserta) chartPeserta.destroy();
 
@@ -953,9 +956,10 @@ function updateChart() {
             datasets: [{
                 label: "Jumlah Peserta Terdaftar",
                 data: values,
-                backgroundColor: ["#1976d2", "#d32f2f"],
+                // Warna terpisah: Biru (Pria), Hijau (Wanita), Merah (Tenis Meja)
+                backgroundColor: ["#1976d2", "#2e7d32", "#d32f2f"],
                 borderRadius: 8,
-                barThickness: 65
+                barThickness: 50
             }]
         },
         options: {
@@ -977,7 +981,7 @@ function updateChart() {
                     },
                     font: {
                         weight: 'bold',
-                        size: 15
+                        size: 14
                     },
                     color: '#222222'
                 }
@@ -986,7 +990,7 @@ function updateChart() {
                 x: {
                     ticks: {
                         font: {
-                            size: 14,
+                            size: 13,
                             weight: 'bold'
                         }
                     }
